@@ -8,8 +8,12 @@ import (
 )
 
 func main() {
-	p631 := scanPort("tcp", "localhost", 631, time.Second*5)
-	fmt.Println("631:", p631)
+	for port := 0; port < 1024; port++ {
+		p := scanPort("tcp", "localhost", port, time.Second*5)
+		if p {
+			fmt.Println(port, ":", p)
+		}
+	}
 }
 
 func scanPort(tcpType, hostname string, port int, timeout time.Duration) bool {
