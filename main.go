@@ -41,7 +41,8 @@ func main() {
 	parseCommandLine()
 	results := scanPorts()
 	fmt.Printf("%-9v %v\n", "PORT", "STATUS")
-	for port, state := range results {
+	for _, port := range portList {
+		state := results[port]
 		var status string
 		if state {
 			status = "open"
