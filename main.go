@@ -19,6 +19,10 @@ var timeoutSeconds = flag.Float64(
 	"timeout",
 	1.0,
 	"Timeout in seconds. Fractional values, e.g. 0.5 are allowed")
+var parallel = flag.Int(
+	"parallel",
+	1,
+	"Maximum number of parallel connections")
 var port = flag.String(
 	"port",
 	"",
@@ -43,8 +47,13 @@ func main() {
 
 func scanPorts() []scanResult {
 	ports := make(chan scanResult)
+	sem := make(Semaphore, *parallel)
+
 	for _, port := range portList {
 		go func(ports chan scanResult, port int) {
+			// Block if more than *parallel connections are started.
+			sem.Acquire(1)
+			defer sem.Release(1)
 			isOpen := scanPort("tcp", *hostname, port, timeout)
 			ports <- scanResult{port, isOpen}
 		}(ports, port)
