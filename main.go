@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -18,12 +19,19 @@ var timeoutSeconds = flag.Float64(
 	"timeout",
 	1.0,
 	"Timeout in seconds. Fractional values, e.g. 0.5 are allowed")
+var port = flag.String(
+	"port",
+	"",
+	"a single port (80) or a single range (80-1024)")
+
+// Set after command line parsing.
 var timeout time.Duration
+var portList []int
 
 func main() {
 	parseCommandLine()
 
-	for port := 70; port < 90; port++ {
+	for _, port := range portList {
 		p := scanPort("tcp", *hostname, port, timeout)
 		if p {
 			fmt.Println(port, ":", p)
@@ -40,8 +48,32 @@ func parseCommandLine() {
 	flag.Parse()
 
 	// Check that mandatory arguments are defined.
-	if *hostname == "" {
+	if *hostname == "" || *port == "" {
 		flag.Usage()
+	}
+	// Special handling for ports to determine if a range is set.
+	if strings.Contains(*port, "-") {
+		ps := strings.Split(*port, "-")
+		start, err := strconv.Atoi(ps[0])
+		if err != nil {
+			flag.Usage()
+		}
+		end, err := strconv.Atoi(ps[1])
+		if err != nil {
+			flag.Usage()
+		}
+		portList = make([]int, end - start + 1)
+		for i := 0; i < len(portList); i++ {
+			portList[i] = start + i
+		}
+	} else {
+		// Single port.
+		sp, err := strconv.Atoi(*port)
+		if err != nil {
+			flag.Usage()
+		}
+		portList = make([]int, 1)
+		portList[0] = sp
 	}
 
 	// Convert timeout from fractional seconds to time.Duration.
@@ -56,7 +88,6 @@ func scanPort(tcpType, hostname string, port int, timeout time.Duration) bool {
 	if err != nil {
 		return false
 	}
-	// Should we use a defer here?
-	conn.Close()
+	defer conn.Close()
 	return true
 }
