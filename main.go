@@ -28,18 +28,33 @@ var port = flag.String(
 var timeout time.Duration
 var portList []int
 
-func main() {
-	parseCommandLine()
-	scanPorts()
+type scanResult struct {
+	port int
+	open bool
 }
 
-func scanPorts() {
-	for _, port := range portList {
-		p := scanPort("tcp", *hostname, port, timeout)
-		if p {
-			fmt.Println(port, ":", p)
-		}
+func main() {
+	parseCommandLine()
+	results := scanPorts()
+	for _, result := range results {
+		fmt.Println(result)
 	}
+}
+
+func scanPorts() []scanResult {
+	ports := make(chan scanResult)
+	for _, port := range portList {
+		go func(ports chan scanResult, port int) {
+			isOpen := scanPort("tcp", *hostname, port, timeout)
+			ports <- scanResult{port, isOpen}
+		}(ports, port)
+	}
+
+	results := make([]scanResult, len(portList))
+	for i := 0; i < len(portList); i++ {
+		results[i] = <-ports
+	}
+	return results
 }
 
 func parseCommandLine() {
@@ -65,7 +80,7 @@ func parseCommandLine() {
 		if err != nil {
 			flag.Usage()
 		}
-		portList = make([]int, end - start + 1)
+		portList = make([]int, end-start+1)
 		for i := 0; i < len(portList); i++ {
 			portList[i] = start + i
 		}
