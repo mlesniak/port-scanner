@@ -41,19 +41,19 @@ func main() {
 	parseCommandLine()
 	results := scanPorts()
 	fmt.Printf("%-9v %v\n", "PORT", "STATUS")
-	for _, result := range results {
+	for port, state := range results {
 		var status string
-		if result.open {
+		if state {
 			status = "open"
 		} else {
 			status = "closed"
 		}
-		var port = fmt.Sprintf("%v", result.port) + "/tcp"
-		fmt.Printf("%-9v %v\n", port, status)
+		var portProtocol = fmt.Sprintf("%v", port) + "/tcp"
+		fmt.Printf("%-9v %v\n", portProtocol, status)
 	}
 }
 
-func scanPorts() []scanResult {
+func scanPorts() map[int]bool {
 	ports := make(chan scanResult)
 	sem := make(Semaphore, *parallel)
 
@@ -67,9 +67,10 @@ func scanPorts() []scanResult {
 		}(ports, port)
 	}
 
-	results := make([]scanResult, len(portList))
+	results := make(map[int]bool)
 	for i := 0; i < len(portList); i++ {
-		results[i] = <-ports
+		res := <-ports
+		results[res.port] = res.open
 	}
 	return results
 }
