@@ -40,8 +40,16 @@ type scanResult struct {
 func main() {
 	parseCommandLine()
 	results := scanPorts()
+	fmt.Printf("%-9v %v\n", "PORT", "STATUS")
 	for _, result := range results {
-		fmt.Println(result)
+		var status string
+		if result.open {
+			status = "open"
+		} else {
+			status = "closed"
+		}
+		var port = fmt.Sprintf("%v", result.port) + "/tcp"
+		fmt.Printf("%-9v %v\n", port, status)
 	}
 }
 
@@ -109,7 +117,6 @@ func parseCommandLine() {
 }
 
 func scanPort(tcpType, hostname string, port int, timeout time.Duration) bool {
-	fmt.Println("Trying", hostname+":", port)
 	address := hostname + ":" + strconv.Itoa(port)
 	conn, err := net.DialTimeout(tcpType, address, timeout)
 	if err != nil {
