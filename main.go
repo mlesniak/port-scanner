@@ -30,7 +30,10 @@ var portList []int
 
 func main() {
 	parseCommandLine()
+	scanPorts()
+}
 
+func scanPorts() {
 	for _, port := range portList {
 		p := scanPort("tcp", *hostname, port, timeout)
 		if p {
