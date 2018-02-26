@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mlesniak/port-scanner.svg?branch=master)](https://travis-ci.org/mlesniak/port-scanner)
+
 # Overview
 
 Implementation of a simple port scanner in Go, mirroring the output of nmap.
