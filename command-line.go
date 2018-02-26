@@ -1,3 +1,4 @@
+// Command line parsing using go's standard flag library.
 package main
 
 import (

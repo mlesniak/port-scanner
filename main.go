@@ -1,3 +1,4 @@
+// Main file starting execution.
 package main
 
 import (
@@ -7,6 +8,8 @@ import (
 	"time"
 )
 
+// scanResult defines the result of the scan for a single port. It's open value is true if
+// a connection to the port could be established.
 type scanResult struct {
 	port int
 	open bool
@@ -20,6 +23,9 @@ func main() {
 	printResults(results, services)
 }
 
+// Scan the list of ports in the global variable portList by trying to open a TCP connection 
+// (hardcoded), timeing out after timeout. If a connection could be established, it is 
+// directly closed.
 func scanPorts() map[int]bool {
 	ports := make(chan scanResult)
 	sem := make(Semaphore, *parallel)
@@ -34,6 +40,7 @@ func scanPorts() map[int]bool {
 		}(ports, port)
 	}
 
+	// Transform the channel into a map for easier consumption.
 	results := make(map[int]bool)
 	for i := 0; i < len(portList); i++ {
 		res := <-ports
@@ -42,6 +49,8 @@ func scanPorts() map[int]bool {
 	return results
 }
 
+
+// scanPort scans a single port on hostname, aborting after timeout.
 func scanPort(tcpType, hostname string, port int, timeout time.Duration) bool {
 	address := hostname + ":" + strconv.Itoa(port)
 	conn, err := net.DialTimeout(tcpType, address, timeout)
@@ -52,6 +61,7 @@ func scanPort(tcpType, hostname string, port int, timeout time.Duration) bool {
 	return true
 }
 
+// printResults displays the result of the scan in a format similar to nmap.
 func printResults(results map[int]bool, services map[int]string) {
 	format := "%-9v %-7v %v\n"
 	fmt.Printf(format, "PORT", "STATUS", "SERVICE")

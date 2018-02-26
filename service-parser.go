@@ -1,3 +1,4 @@
+// Parse the embedded service list to provide a map from port to the port's service description.
 package main
 
 import (
@@ -7,6 +8,8 @@ import (
 	"strconv"
 )
 
+// serviceFuture is a future (a channel with a single write) containing the map from 
+// port number to abbreviated description of the port.
 type serviceFuture chan map[int]string
 
 func parseServiceList() chan map[int]string {
