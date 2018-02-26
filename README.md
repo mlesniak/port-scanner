@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/mlesniak/port-scanner.svg?branch=master)](https://travis-ci.org/mlesniak/port-scanner)
+[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-orange.svg?style=flat)](CODE_OF_CONDUCT.md)
 
 # Overview
 
