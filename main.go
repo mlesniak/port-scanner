@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"encoding/csv"
+	"bytes"
 )
 
 // Command line parameter
@@ -37,8 +39,12 @@ type scanResult struct {
 	open bool
 }
 
+var services map[int]string
+
 func main() {
 	parseCommandLine()
+	parseServiceList()
+	
 	results := scanPorts()
 	fmt.Printf("%-9v %v\n", "PORT", "STATUS")
 	for _, port := range portList {
@@ -51,7 +57,7 @@ func main() {
 		}
 		var portProtocol = fmt.Sprintf("%v", port) + "/tcp"
 		fmt.Printf("%-9v %v\n", portProtocol, status)
-	}
+	}	
 }
 
 func scanPorts() map[int]bool {
@@ -126,4 +132,41 @@ func scanPort(tcpType, hostname string, port int, timeout time.Duration) bool {
 	}
 	defer conn.Close()
 	return true
+}
+
+func parseServiceList() {
+	services = make(map[int]string)
+
+	// Read data.
+	bs, err := Asset("data/service-names-port-numbers.csv")
+	if err != nil {
+		fmt.Println(err)
+		panic("Unable to access service file list")
+	}
+
+	// Parse CSV.
+	r := csv.NewReader(bytes.NewReader(bs))
+	records, err := r.ReadAll()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Create map.
+	for _, rec := range records {
+		// Remove UDP information for now.
+		if rec[2] != "tcp" {
+			continue
+		}
+		// Remove empty port numbers
+		if rec[1] == "" {
+			continue
+		}
+		port, err := strconv.Atoi(rec[1])
+		if err != nil {
+			// We ignore port ranges such as xwindow's 6000-6003 for now.
+		}
+		techDesc := rec[0]
+		services[port] = techDesc
+	}
 }
