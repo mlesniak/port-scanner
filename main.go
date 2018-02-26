@@ -39,16 +39,17 @@ type scanResult struct {
 	open bool
 }
 
-var services map[int]string
+type serviceFuture chan map[int]string
 
 func main() {
 	parseCommandLine()
-	parseServiceList()
+	servicesFuture := parseServiceList()
 	results := scanPorts()
-	printResults(results)
+	services := <-servicesFuture
+	printResults(results, services)
 }
 
-func printResults(results map[int]bool) {
+func printResults(results map[int]bool, services map[int]string) {
 	format := "%-9v %-7v %v\n"
 	fmt.Printf(format, "PORT", "STATUS", "SERVICE")
 	for _, port := range portList {
@@ -139,8 +140,14 @@ func scanPort(tcpType, hostname string, port int, timeout time.Duration) bool {
 	return true
 }
 
-func parseServiceList() {
-	services = make(map[int]string)
+func parseServiceList() chan map[int]string {
+	future := make(serviceFuture)
+	go internalParse(future)
+	return future
+}
+
+func internalParse(future serviceFuture) {
+	services := make(map[int]string)
 
 	// Read data.
 	bs, err := Asset("data/service-names-port-numbers.csv")
@@ -174,4 +181,6 @@ func parseServiceList() {
 		techDesc := rec[0]
 		services[port] = techDesc
 	}
+
+	future <- services
 }
