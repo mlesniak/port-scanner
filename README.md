@@ -50,6 +50,12 @@ If you have not installed `go-bindata`, use
 
 beforehand.
 
+To reduce the file size, use [upx](https://upx.github.io/) and 
+
+    go build && strip port-scanner && upx -9 port-scanner
+
+to create a 1MB single static file, e.g. for using it in docker containers.
+
 ## Limitations
 
 While this application is feature complete for my usages, the following limitations apply:
