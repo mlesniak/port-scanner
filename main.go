@@ -44,8 +44,11 @@ var services map[int]string
 func main() {
 	parseCommandLine()
 	parseServiceList()
-
 	results := scanPorts()
+	printResults(results)
+}
+
+func printResults(results map[int]bool) {
 	format := "%-9v %-7v %v\n"
 	fmt.Printf(format, "PORT", "STATUS", "SERVICE")
 	for _, port := range portList {
