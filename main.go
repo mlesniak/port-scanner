@@ -44,9 +44,10 @@ var services map[int]string
 func main() {
 	parseCommandLine()
 	parseServiceList()
-	
+
 	results := scanPorts()
-	fmt.Printf("%-9v %v\n", "PORT", "STATUS")
+	format := "%-9v %-7v %v\n"
+	fmt.Printf(format, "PORT", "STATUS", "SERVICE")
 	for _, port := range portList {
 		state := results[port]
 		var status string
@@ -56,7 +57,8 @@ func main() {
 			status = "closed"
 		}
 		var portProtocol = fmt.Sprintf("%v", port) + "/tcp"
-		fmt.Printf("%-9v %v\n", portProtocol, status)
+		var service = services[port]
+		fmt.Printf(format, portProtocol, status, service)
 	}	
 }
 
