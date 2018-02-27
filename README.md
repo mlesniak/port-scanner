@@ -60,6 +60,19 @@ To reduce the file size, use [upx](https://upx.github.io/) and
 
 to create a 1MB single static file, e.g. for using it in docker containers.
 
+### Build with Docker
+
+Building port-scanner with Docker is simple
+
+    git clone git@github.com:mlesniak/port-scanner.git
+    cd port-scanner
+    docker build -t port-scanner .
+    docker run --rm port-scanner -hostname mlesniak.com -parallel 20 -port 75-85 -timeout 1
+
+To export the static binary simply run
+
+    docker run --rm --entrypoint="" port-scanner cat /usr/local/bin/port-scanner > port-scanner
+
 ## Limitations
 
 While this application is feature complete for my usages, the following limitations apply:
