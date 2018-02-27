@@ -86,10 +86,6 @@ If these limitations annoy you, either fix this yourself and write a pull reques
 
 A Trello Board can be found [here](https://trello.com/b/opzPa3fd/port-scanner).
 
-## Tools
-
-We use [go-bindata](https://github.com/a-urth/go-bindata).
-
 ## License
 
 The source code is licensed under the [Apache license](https://raw.githubusercontent.com/mlesniak/port-scanner/master/LICENSE)
