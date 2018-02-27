@@ -38,11 +38,15 @@ A list of available command line options can be obtained by executing
 
 ## Building
 
-We use [go-bindata](https://github.com/a-urth/go-bindata), hence to build you have to
+To build and install port-scanner under `$GOPATH` you have to
 
     git clone git@github.com:mlesniak/port-scanner.git
-    go-bindata data/
     go install
+
+We use [go-bindata](https://github.com/a-urth/go-bindata) to embed files in `data/`, hence to build 
+`bindata.go`, you have to
+
+    go-bindata data/
 
 If you have not installed `go-bindata`, use
 
@@ -50,7 +54,7 @@ If you have not installed `go-bindata`, use
 
 beforehand.
 
-To reduce the file size, use [upx](https://upx.github.io/) and 
+To reduce the file size, use [upx](https://upx.github.io/) and
 
     go build && strip port-scanner && upx -9 port-scanner
 
